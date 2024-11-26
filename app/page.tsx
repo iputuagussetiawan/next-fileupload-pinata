@@ -1,28 +1,24 @@
 "use client";
 
+import { pinata } from "@/lib/pinata";
 import { useState } from "react";
 
 export default function Home() {
   const [file, setFile] = useState<File>();
-  const [url, setUrl] = useState("");
   const [uploading, setUploading] = useState(false);
 
   const uploadFile = async () => {
-    try {
-      if (!file) {
-        alert("No file selected");
-        return;
-      }
+    if (!file) {
+      alert("No file selected");
+      return;
+    }
 
+    try {
       setUploading(true);
-      const data = new FormData();
-      data.set("file", file);
-      const uploadRequest = await fetch("/api/files", {
-        method: "POST",
-        body: data,
-      });
-      const signedUrl = await uploadRequest.json();
-      setUrl(signedUrl);
+      const keyRequest = await fetch("/api/key");
+      const keyData = await keyRequest.json();
+      const upload = await pinata.upload.file(file).key(keyData.JWT);
+      console.log(upload);
       setUploading(false);
     } catch (e) {
       console.log(e);
