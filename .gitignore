@@ -10,6 +10,9 @@
 !.yarn/releases
 !.yarn/versions
 
+# env files (can opt-in for commiting if needed)
+.env*
+
 # testing
 /coverage
 
