@@ -7,10 +7,11 @@ import { pinata } from '@/lib/pinata';
 import Image from 'next/image';
 import { Loader2, XIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { deleteImage } from '@/app/action';
 
 
 export function MyDropzone() {
-    const [files, setFiles]=useState<Array<{file:File; uploading:boolean}>>([]);
+    const [files, setFiles]=useState<Array<{file:File; uploading:boolean, id?:string}>>([]);
     console.log(files)
 
     const uploadFile=async(file:File)=>{
@@ -22,7 +23,7 @@ export function MyDropzone() {
             const keyData= await keyRequest.json();
             const upload=await pinata.upload.file(file).key(keyData.JWT);
             setFiles((prevFiles)=>
-                prevFiles.map((f)=>(f.file===file?{...f,uploading:false}:f))
+                prevFiles.map((f)=>(f.file===file?{...f,uploading:false,id:upload.id}:f))
             );
             toast.success(`File ${file.name} uploaded successfully`);
         } catch (error) {
@@ -31,6 +32,18 @@ export function MyDropzone() {
                 prevFiles.map((f)=>(f.file===file?{...f,uploading:false}:f))
             );
             toast.error("Error uploading file")
+        }
+    }
+
+    const removeFile=async(fileId:string, fileName:string)=>{
+        if(fileId){
+            const result=await deleteImage(fileId);
+            if(result.success){
+                setFiles((prevFiles)=>prevFiles.filter((f)=>f.id!==fileId));
+                toast.success(`File ${fileName} deleted successfully`);
+            }else{
+                toast.error('Error deleting file...');
+            }
         }
     }
     const onDrop = useCallback(async(acceptedFiles:File[]) => {
@@ -68,7 +81,7 @@ export function MyDropzone() {
                 }
                 </div>
                 <div className='mt-10 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4'>
-                    {files.map(({file, uploading}) => (
+                    {files.map(({file, uploading, id}) => (
                         <div key={file.name} className='relative w-full group'>
                             <div className="relative">
                                 <Image 
@@ -86,11 +99,11 @@ export function MyDropzone() {
                                     </div>
                                 )}
                             </div>
-                            <div className='absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity'>
+                            <form action={()=>removeFile(id!, file.name)} className='absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity'>
                                 <Button size={"icon"} variant={"destructive"}>
                                     <XIcon/>
                                 </Button>
-                            </div>
+                            </form>
                             <p className='mt-2 text-sm text-gray-500 truncate'>{file.name}</p>
                         </div>
                     ))}
