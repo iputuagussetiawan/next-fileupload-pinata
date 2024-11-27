@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { Loader2, XIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { deleteImage } from '@/app/action';
+import { DeleteButton } from './DeleteButton';
 
 
 export function MyDropzone() {
@@ -100,9 +101,7 @@ export function MyDropzone() {
                                 )}
                             </div>
                             <form action={()=>removeFile(id!, file.name)} className='absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity'>
-                                <Button size={"icon"} variant={"destructive"}>
-                                    <XIcon/>
-                                </Button>
+                                <DeleteButton/>
                             </form>
                             <p className='mt-2 text-sm text-gray-500 truncate'>{file.name}</p>
                         </div>
