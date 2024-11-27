@@ -1,41 +1,15 @@
 "use client";
 
+import { MyDropzone } from "@/components/dropzone";
 import { pinata } from "@/lib/pinata";
 import { useState } from "react";
 
+
 export default function Home() {
-  const [file, setFile] = useState<File>();
-  const [uploading, setUploading] = useState(false);
-
-  const uploadFile = async () => {
-    if (!file) {
-      alert("No file selected");
-      return;
-    }
-
-    try {
-      setUploading(true);
-      const keyRequest = await fetch("/api/key");
-      const keyData = await keyRequest.json();
-      const upload = await pinata.upload.file(file).key(keyData.JWT);
-      console.log(upload);
-      setUploading(false);
-    } catch (e) {
-      console.log(e);
-      setUploading(false);
-      alert("Trouble uploading file");
-    }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFile(e.target?.files?.[0]);
-  };
-  return (
-    <main className="w-full min-h-screen m-auto flex flex-col justify-center items-center">
-      <input type="file" onChange={handleChange} />
-      <button type="button" disabled={uploading} onClick={uploadFile} >
-        {uploading ? "Uploading..." : "Upload"}
-      </button>
-    </main>
-  );
+  return(
+    <div className="max-w-xl mx-auto min-h-screen w-screen flex flex-col items-center justify-center">
+      <h1 className="text-5xl font-bold"> File <span className="text-primary">Upload</span></h1>
+      <MyDropzone/>
+    </div>
+  )
 }
