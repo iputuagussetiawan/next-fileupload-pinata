@@ -1,6 +1,6 @@
 "use client"
 import React, {useCallback, useState} from 'react'
-import {useDropzone} from 'react-dropzone'
+import {FileRejection, useDropzone} from 'react-dropzone'
 import { Button } from './ui/button'
 import { toast } from 'sonner';
 import { pinata } from '@/lib/pinata';
@@ -60,7 +60,34 @@ export function MyDropzone() {
 
         console.log(acceptedFiles)
     }, [])
-    const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop})
+
+    const rejectedFiles=useCallback((fileRejection:FileRejection[]) => {
+        if(fileRejection.length){
+            const tooManyFiles=fileRejection.find(
+                (rejection)=>rejection.errors[0].code==="too-many-files"
+            );
+            const fileSizeToBig=fileRejection.find(
+                (rejection)=>rejection.errors[0].code==="file-too-large"
+            );
+
+            if(tooManyFiles){
+                toast.error("Too many files selected...max is 5");
+            }
+
+            if(fileSizeToBig){
+                toast.error("File size exceeds 5mb...");
+            }
+        }
+    },[])
+    const {getRootProps, getInputProps, isDragActive} = useDropzone({
+        onDrop, 
+        onDropRejected:rejectedFiles,
+        maxFiles:5,
+        maxSize:1024*1024*5, //5mb
+        accept: {
+            "image/*": [],
+        }
+    })
 
     return (
         <>
